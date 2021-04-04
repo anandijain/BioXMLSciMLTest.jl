@@ -37,7 +37,7 @@ function sciml!(row, fn, f=ODESystem; dir="out", write=true)
         row[2] = true
         row[5] = length(states(sys))
         row[6] = length(parameters(sys))
-        prob = ODEProblem(ml, Pair[], (0., 1.))
+        prob = ODEProblem(sys, Pair[], (0., 1.))
         row[3] = true
         sol = solve(prob, Tsit5())
         row[4] = true
