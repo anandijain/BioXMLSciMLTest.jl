@@ -33,7 +33,7 @@ function sciml!(row, fn, f=ODESystem; dir="out", write=true)
     name, ext = splitext(file)
     row[1] = fn
     try
-        ml = f(fn)
+        sys = f(fn)
         row[2] = true
         row[5] = length(states(sys))
         row[6] = length(parameters(sys))
