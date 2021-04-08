@@ -1,14 +1,14 @@
 module BioXMLSciMLTest
 
-using ModelingToolkit, OrdinaryDiffEq, CSV, DataFrames
+using ModelingToolkit, OrdinaryDiffEq, CSV, DataFrames, Distributed
 
 const cols = [:filename, :to_system, :to_problem, :to_solve, :states, :parameters, :error]
 const N = length(cols)
 
 "info on how far the lowering got"
 function sciml(fn, f=ODESystem; dir="out")
-    row = Vector(nothing, N)
-    test_sciml!(row, fn, f=f; dir=dir, write=false)
+    row = Vector(undef, N)
+    sciml!(row, fn, f) #; dir=dir, write=true)
     row
 end
 
@@ -49,36 +49,45 @@ function sciml!(row, fn, f=ODESystem; dir="out", write=true)
     row
 end
 
-function sciml!(mat, fns, f=ODESystem; dir="out")
+function scimls!(mat, fns, f=ODESystem; dir="out")
     for i in eachindex(fns)
-        @show i fns[i]
-        mat[i, :] = test_sciml!(mat[i, :], fns[i];dir=dir)
+        # @show i fns[i]
+        mat[i, :] = sciml!(mat[i, :], fns[i];dir=dir)
     end
     mat
 end
 
 function scimls_pmap!(mat, fns, f=ODESystem; dir="out")
     # mat[:, :] = permutedims(reduce(hcat, @showprogress(pmap(test_cellml!, eachrow(mat), fns))))
-    mat[:, :] = permutedims(reduce(hcat, pmap(test_sciml!, eachrow(mat), fns)))
+    mat[:, :] = permutedims(reduce(hcat, pmap(sciml!, eachrow(mat), fns)))
     nothing
 end
 
-"f: filename -> ODESystem.
+function scimls!(mat, fns, f=ODESystem; dir="out")
+    # mat[:, :] = permutedims(reduce(hcat, @showprogress(pmap(test_cellml!, eachrow(mat), fns))))
+    mat[:, :] = permutedims(reduce(hcat, sciml!, eachrow(mat), fns))
+    nothing
+end
+
+"creates a df from the created row files,"
+function results_df(dir="out/suite/")
+    vcat(CSV.read.(readdir(dir;join=true), DataFrame)...) 
+end
+
+"
+THIS IS THE IMPORTANT FXN IN THE PACKAGE
+
+f: filename -> ODESystem.
 
 idrk how performant it is allocing the mat up front"
 function files_to_sciml(fns, f=ODESystem; dir="out", pmap=false)
     mkpath(dir)
     n = length(cols)
     mat = Array{Any,2}(nothing, length(fns), n)
-    pmap ? test_scimls_pmap!(mat, fns, f=f; dir=dir) : test_scimls!(mat, fns, f=f; dir=dir)
+    pmap ? scimls_pmap!(mat, fns, f; dir=dir) : test_scimls!(mat, fns, f; dir=dir)
     nothing
 end
 
-"creates a df from the created row files"
-function results_df(dir="out/suite/")
-    vcat(CSV.read.(readdir(dir;join=true), DataFrame)...) 
-end
-
-export files_to_sciml, results_df, sciml
+export files_to_sciml, results_df, sciml, sciml!
 
 end
