@@ -1,8 +1,9 @@
 using BioXMLSciMLTest, CellMLModelRepository
 
 # sbml_test_suite()
-fns = get_sbml_suite_fns()
-fns = readdir(joinpath(@__DIR__, "../data/cellml_models/"))
+curl_cellml_models()
+p = joinpath(@__DIR__, "../data/cellml_models/")
+fns = readdir()
 # @show fns
 @test !isempty(fns)
 
