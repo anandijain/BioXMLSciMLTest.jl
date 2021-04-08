@@ -76,7 +76,7 @@ function files_to_sciml(fns, f=ODESystem; dir="out", pmap=false)
     mkpath(dir)
     n = length(cols)
     mat = Array{Any,2}(nothing, length(fns), n)
-    pmap ? scimls_pmap!(mat, fns, f; dir=dir) : test_scimls!(mat, fns, f; dir=dir)
+    pmap ? scimls_pmap!(mat, fns, f; dir=dir) : scimls!(mat, fns, f; dir=dir)
     nothing
 end
 
