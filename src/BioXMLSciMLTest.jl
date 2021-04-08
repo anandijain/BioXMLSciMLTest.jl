@@ -49,14 +49,6 @@ function sciml!(row, fn, f=ODESystem; dir="out", write=true)
     row
 end
 
-function scimls!(mat, fns, f=ODESystem; dir="out")
-    for i in eachindex(fns)
-        # @show i fns[i]
-        mat[i, :] = sciml!(mat[i, :], fns[i];dir=dir)
-    end
-    mat
-end
-
 function scimls_pmap!(mat, fns, f=ODESystem; dir="out")
     # mat[:, :] = permutedims(reduce(hcat, @showprogress(pmap(test_cellml!, eachrow(mat), fns))))
     mat[:, :] = permutedims(reduce(hcat, pmap(sciml!, eachrow(mat), fns)))
@@ -65,7 +57,7 @@ end
 
 function scimls!(mat, fns, f=ODESystem; dir="out")
     # mat[:, :] = permutedims(reduce(hcat, @showprogress(pmap(test_cellml!, eachrow(mat), fns))))
-    mat[:, :] = permutedims(reduce(hcat, sciml!, eachrow(mat), fns))
+    mat[:, :] = permutedims(mapreduce(hcat, sciml!, eachrow(mat), fns))
     nothing
 end
 
