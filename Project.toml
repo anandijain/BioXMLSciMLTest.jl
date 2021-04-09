@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CellMLModelRepository = "44f94207-8466-4895-823f-594c0355a39c"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"

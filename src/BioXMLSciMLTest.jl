@@ -7,7 +7,7 @@ const N = length(cols)
 
 "info on how far the lowering got"
 function sciml(fn, f=ODESystem; dir="out")
-    row = Vector(undef, N)
+    row = Vector{Any}(fill(missing, N))
     sciml!(row, fn, f) #; dir=dir, write=true)
     row
 end
